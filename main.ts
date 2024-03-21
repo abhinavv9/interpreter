@@ -9,9 +9,9 @@ function repl() {
   const parser = new Parser();
   const env = new Environment();
 
-  env.declareVar("true", MAKE_BOOL(true))
-  env.declareVar("false", MAKE_BOOL(false))
-  env.declareVar("null", MAKE_NULL())
+  env.declareVar("true", MAKE_BOOL(true), true)
+  env.declareVar("false", MAKE_BOOL(false), true)
+  env.declareVar("null", MAKE_NULL(), true)
 
   while (true) {
     const input = prompt(">> ");

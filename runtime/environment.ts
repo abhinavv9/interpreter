@@ -15,7 +15,7 @@ export default class Environment {
   public declareVar(
     varname: string,
     value: RuntimeVal,
-    constant: boolean = false
+    constant: boolean 
   ): RuntimeVal {
     if (this.variables.has(varname)) {
       throw new Error(`Variable ${varname} already declared in this scope`);

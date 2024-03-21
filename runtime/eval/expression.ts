@@ -1,4 +1,4 @@
-import { Stmt, NumericLiteral, Identifier, BinaryExpr } from "../../cmd/ast.ts";
+import { Stmt, NumericLiteral, Identifier, BinaryExpr, AssignmentExpr } from "../../cmd/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
 import { RuntimeVal, NumberVal, MAKE_NULL } from "../values.ts";
@@ -43,4 +43,13 @@ function evaluateNumericBinaryExpression(
 	default:
 	  throw new Error(`Unknown binary operator: ${operator}`);
   }
+}
+
+export function evaluateAssignmentExpression(node: AssignmentExpr, env: Environment): RuntimeVal {
+  if (node.assignee.kind != "Identifier") {
+    throw "Invalid assignment target";
+  }
+
+  const varname = (node.assignee as Identifier).symbol;
+  return env.assignVar(varname, evaluate(node.value, env));
 }

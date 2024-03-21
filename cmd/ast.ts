@@ -5,6 +5,7 @@ export type NodeType =
   | "NumericLiteral"
   | "BinaryExpression"
   | "Identifier"
+  | "AssignmentExpr"
 export interface Stmt {
   kind: NodeType;
 }
@@ -30,6 +31,12 @@ export interface BinaryExpr extends Expr {
   left: Expr;
   right: Expr;
   operator: string;
+}
+
+export interface AssignmentExpr extends Expr {
+  kind: "AssignmentExpr";
+  assignee: Expr;
+  value: Expr;
 }
 
 export interface Identifier extends Expr {

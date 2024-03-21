@@ -1,13 +1,13 @@
 import { RuntimeVal } from "./values.ts";
-import {
-  Stmt,
-  BinaryExpr,
-  Program,
-  Identifier,
-} from "../cmd/ast.ts";
+import { Stmt, BinaryExpr, Program, Identifier } from "../cmd/ast.ts";
 import Environment from "./environment.ts";
-import { VarDeclaration } from "../cmd/ast.ts";
-import { evaluateNumericLiteral, evaluateBinaryExpression, evaluateIdentifier } from "./eval/expression.ts";
+import { VarDeclaration, AssignmentExpr } from "../cmd/ast.ts";
+import {
+  evaluateNumericLiteral,
+  evaluateBinaryExpression,
+  evaluateIdentifier,
+  evaluateAssignmentExpression,
+} from "./eval/expression.ts";
 import { evaluateProgram, evaluateVarDeclaration } from "./eval/statement.ts";
 
 export function evaluate(node: Stmt, env: Environment): RuntimeVal {
@@ -22,10 +22,10 @@ export function evaluate(node: Stmt, env: Environment): RuntimeVal {
       return evaluateIdentifier(node as Identifier, env);
     case "VarDeclaration":
       return evaluateVarDeclaration(node as VarDeclaration, env);
+    case "AssignmentExpr":
+      return evaluateAssignmentExpression(node as AssignmentExpr, env);
     default:
-      console.error("This AST Node has not yet been setup", node)
-	  Deno.exit(1)
+      console.error("This AST Node has not yet been setup", node);
+      Deno.exit(1);
   }
 }
-
-
