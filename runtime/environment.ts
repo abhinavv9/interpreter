@@ -4,30 +4,43 @@ export default class Environment {
   private parent?: Environment;
 
   private variables: Map<string, RuntimeVal>;
+  private constants: Set<string>;
 
   constructor(parentEnv?: Environment) {
     this.parent = parentEnv;
     this.variables = new Map();
+    this.constants = new Set();
   }
 
-  public declareVar(varname: string, value: RuntimeVal): RuntimeVal {
+  public declareVar(
+    varname: string,
+    value: RuntimeVal,
+    constant: boolean = false
+  ): RuntimeVal {
     if (this.variables.has(varname)) {
       throw new Error(`Variable ${varname} already declared in this scope`);
     }
 
     this.variables.set(varname, value);
+    if (constant) {
+      this.constants.add(varname);
+    }
+
     return value;
   }
 
   public assignVar(varname: string, value: RuntimeVal): RuntimeVal {
     const env = this.resolve(varname);
+    if (env.constants.has(varname)) {
+      throw `Cannot assign to constant variable ${varname}`;
+    }
     env.variables.set(varname, value);
     return value;
   }
 
   public lookupVar(varname: string): RuntimeVal {
-	const env = this.resolve(varname);
-	return env.variables.get(varname) as RuntimeVal;
+    const env = this.resolve(varname);
+    return env.variables.get(varname) as RuntimeVal;
   }
 
   public resolve(varname: string): Environment {

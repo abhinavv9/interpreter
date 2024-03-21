@@ -2,10 +2,10 @@ import {
   BinaryExpr,
   Expr,
   Identifier,
-  NodeType,
   NumericLiteral,
   Stmt,
   Program,
+  VarDeclaration,
 } from "./ast.ts";
 import { tokenize, Token, TokenType } from "./lexer.ts";
 
@@ -51,7 +51,47 @@ export default class Parser {
   }
 
   private parse_stmt(): Stmt {
-    return this.parse_expr();
+    switch (this.at().type) {
+      case TokenType.Let:
+        return this.parse_var_declaration();
+      case TokenType.Const:
+        return this.parse_var_declaration();
+      default:
+        return this.parse_expr();
+    }
+  }
+
+  private parse_var_declaration(): Stmt {
+    const isConst = this.eat().type == TokenType.Const;
+    const identifier = this.expects(
+      TokenType.Identifier,
+      "Expected identifier let | const keyword"
+    ).value;
+
+    if (this.at().type == TokenType.Semicolon) {
+      this.eat();
+      if (isConst) {
+        throw new Error("Constant declaration must have a value");
+      }
+
+      return {
+        kind: "VarDeclaration",
+        identifier,
+        constant: false,
+      } as VarDeclaration;
+    }
+
+    this.expects(TokenType.Eqaual, "Expected '=' after identifier");
+    const declaration: VarDeclaration = {
+      kind: "VarDeclaration",
+      identifier,
+      constant: isConst,
+      value: this.parse_expr(),
+    };
+
+    this.expects(TokenType.Semicolon, "Expected ';' after expression");
+
+    return declaration;
   }
 
   private parse_expr(): Expr {
