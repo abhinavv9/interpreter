@@ -1,4 +1,12 @@
-import { RuntimeVal } from "./values.ts";
+import { MAKE_BOOL, MAKE_NULL, RuntimeVal } from "./values.ts";
+
+export function setupGlobalEnv() {
+  const env = new Environment();
+  env.declareVar("true", MAKE_BOOL(true), true);
+  env.declareVar("false", MAKE_BOOL(false), true);
+  env.declareVar("null", MAKE_NULL(), true);
+  return env;
+}
 
 export default class Environment {
   private parent?: Environment;
@@ -7,6 +15,7 @@ export default class Environment {
   private constants: Set<string>;
 
   constructor(parentEnv?: Environment) {
+    const global = parentEnv ? true : false;
     this.parent = parentEnv;
     this.variables = new Map();
     this.constants = new Set();
@@ -15,7 +24,7 @@ export default class Environment {
   public declareVar(
     varname: string,
     value: RuntimeVal,
-    constant: boolean 
+    constant: boolean
   ): RuntimeVal {
     if (this.variables.has(varname)) {
       throw new Error(`Variable ${varname} already declared in this scope`);

@@ -1,5 +1,5 @@
 import { RuntimeVal } from "./values.ts";
-import { Stmt, BinaryExpr, Program, Identifier } from "../cmd/ast.ts";
+import { Stmt, BinaryExpr, Program, Identifier, ObjectLiteral } from "../cmd/ast.ts";
 import Environment from "./environment.ts";
 import { VarDeclaration, AssignmentExpr } from "../cmd/ast.ts";
 import {
@@ -7,6 +7,7 @@ import {
   evaluateBinaryExpression,
   evaluateIdentifier,
   evaluateAssignmentExpression,
+  evaluateObjectExpression,
 } from "./eval/expression.ts";
 import { evaluateProgram, evaluateVarDeclaration } from "./eval/statement.ts";
 
@@ -22,6 +23,8 @@ export function evaluate(node: Stmt, env: Environment): RuntimeVal {
       return evaluateIdentifier(node as Identifier, env);
     case "VarDeclaration":
       return evaluateVarDeclaration(node as VarDeclaration, env);
+      case "ObjectLiteral":
+        return evaluateObjectExpression(node as ObjectLiteral, env);
     case "AssignmentExpr":
       return evaluateAssignmentExpression(node as AssignmentExpr, env);
     default:

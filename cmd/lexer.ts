@@ -9,16 +9,20 @@ export enum TokenType {
   OpenParen,
   CloseParen,
   BinaryOperator,
+  Colon,
+  OpenBrace,
+  CloseBrace,
+  Comma,
   EOF,
 
   // Keywords
   Let,
-  Const
+  Const,
 }
 
 const KEYWORDS: Record<string, TokenType> = {
   let: TokenType.Let,
-  const: TokenType.Const
+  const: TokenType.Const,
 };
 
 export interface Token {
@@ -39,7 +43,7 @@ function isInt(c: string): boolean {
 }
 
 function isSkippable(c: string): boolean {
-  return c == " " || c == "\n" || c == "\t";
+  return c == " " || c == "\n" || c == "\t" || c == "\r";
 }
 
 export function tokenize(source: string): Token[] {
@@ -51,10 +55,18 @@ export function tokenize(source: string): Token[] {
       tokens.push(token(src.shift(), TokenType.OpenParen));
     } else if (src[0] == ")") {
       tokens.push(token(src.shift(), TokenType.CloseParen));
-    }  else if (src[0] == "=") {
+    } else if (src[0] == "{") {
+      tokens.push(token(src.shift(), TokenType.OpenBrace));
+    } else if (src[0] == "}") {
+      tokens.push(token(src.shift(), TokenType.CloseBrace));
+    } else if (src[0] == "=") {
       tokens.push(token(src.shift(), TokenType.Eqaual));
-    }else if (src[0] == ";") {
+    } else if (src[0] == ";") {
       tokens.push(token(src.shift(), TokenType.Semicolon));
+    } else if (src[0] == ",") {
+      tokens.push(token(src.shift(), TokenType.Comma));
+    } else if (src[0] == ":") {
+      tokens.push(token(src.shift(), TokenType.Colon));
     } else if (
       src[0] == "+" ||
       src[0] == "-" ||
