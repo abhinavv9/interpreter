@@ -9,6 +9,8 @@ import {
   AssignmentExpr,
   Property,
   ObjectLiteral,
+  CallExpr,
+  MemberExpr,
 } from "./ast.ts";
 import { tokenize, Token, TokenType } from "./lexer.ts";
 
@@ -163,7 +165,7 @@ export default class Parser {
   }
 
   private parse_multiplicative_expr(): Expr {
-    let left = this.parse_primary_expr();
+    let left = this.parse_call_member_expr();
 
     while (
       this.at().value == "*" ||
@@ -171,7 +173,7 @@ export default class Parser {
       this.at().value == "%"
     ) {
       const operator = this.eat().value;
-      const right = this.parse_primary_expr();
+      const right = this.parse_call_member_expr();
       left = { kind: "BinaryExpression", left, right, operator } as BinaryExpr;
     }
 
@@ -207,5 +209,49 @@ export default class Parser {
         console.error("Unexpected token", this.at());
         Deno.exit(1);
     }
+  }
+
+  private parse_call_member_expr(): Expr {
+    const member = this.parse_call_member_expr();
+
+    if (this.at().type == TokenType.OpenParen) {
+      return this.parse_call_expr(member);
+    }
+
+    return member;
+  }
+
+  private parse_call_expr(caller: Expr): Expr {
+    let call_expr: Expr = {
+      kind: "CallExpr",
+      caller,
+      args: this.parse_args(),
+    } as CallExpr;
+
+    if (this.at().type == TokenType.CloseParen) {
+      call_expr = this.parse_call_expr(call_expr);
+    }
+
+    return call_expr;
+  }
+
+  private parse_args(): Expr[] {
+    this.expects(TokenType.OpenParen, "Expected '('");
+    const args =
+      this.at().type == TokenType.CloseParen ? [] : this.parse_arguments_list();
+
+    this.expects(TokenType.CloseParen, "Expected ')'");
+    return args;
+  }
+
+  private parse_arguments_list(): Expr[] {
+    const args = [this.parse_assigment_expr()];
+
+    while (this.at().type == TokenType.Comma) {
+      this.eat();
+      args.push(this.parse_assigment_expr());
+    }
+
+    return args;
   }
 }

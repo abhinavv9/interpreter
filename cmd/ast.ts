@@ -8,6 +8,8 @@ export type NodeType =
   | "AssignmentExpr"
   | "Property"
   | "ObjectLiteral"
+  | "MemberExpr"
+  | "CallExpr";
 export interface Stmt {
   kind: NodeType;
 }
@@ -24,8 +26,6 @@ export interface VarDeclaration extends Stmt {
   value?: Expr;
 }
 
-
-
 export interface Expr extends Stmt {}
 
 export interface BinaryExpr extends Expr {
@@ -33,6 +33,19 @@ export interface BinaryExpr extends Expr {
   left: Expr;
   right: Expr;
   operator: string;
+}
+
+export interface MemberExpr extends Expr {
+  kind: "MemberExpr";
+  object: Expr;
+  property: Expr;
+  computed: boolean;
+}
+
+export interface CallExpr extends Expr {
+  kind: "CallExpr";
+  args: Expr[];
+  caller: Expr;
 }
 
 export interface AssignmentExpr extends Expr {
